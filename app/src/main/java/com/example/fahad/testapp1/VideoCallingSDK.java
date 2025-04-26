@@ -35,6 +35,11 @@ public class VideoCallingSDK {
 
     private BottomNavigationView bottomNavigationView;
 
+    private boolean isLocalVideoEnabled;
+    private boolean isLocalAudioEnabled;
+    private boolean isLocalCameraEnabled;
+    private boolean isLocalMicEnabled;
+
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() {
         // Triggered when the local user successfully joins the specified channel.
         @Override
@@ -74,6 +79,8 @@ public class VideoCallingSDK {
         enableVideo();
         setupLocalVideo();
         joinChannel();
+        isLocalMicEnabled = true;
+        isLocalCameraEnabled = true;
     }
 
     private void initializeAgoraVideoSDK() {
@@ -100,6 +107,23 @@ public class VideoCallingSDK {
     private void enableVideo() {
         mRtcEngine.enableVideo();
         mRtcEngine.startPreview();
+        isLocalVideoEnabled = true;
+    }
+
+    private void disableVideo() {
+        mRtcEngine.disableVideo();
+        mRtcEngine.stopPreview();
+        isLocalVideoEnabled = false;
+    }
+
+    private void enableAudio() {
+        mRtcEngine.enableAudio();
+        isLocalAudioEnabled = true;
+    }
+
+    private void disableAudio() {
+        mRtcEngine.disableAudio();
+        isLocalAudioEnabled = false;
     }
 
     private void setupLocalVideo() {
@@ -111,21 +135,56 @@ public class VideoCallingSDK {
         bottomNavigationView = context.findViewById(R.id.bottom_nav);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.page_1) {
-                showToast("Page_1 Selected");
+                //WIP
+                showToast("Options Selected");
                 return true;
             } else if (item.getItemId() == R.id.page_2) {
-                showToast("Page_2 Selected");
+                //This is for Video
+                //Icon update is not done yet
+                toggleCamera();
                 return true;
             } else if (item.getItemId() == R.id.page_3) {
-                showToast("Page_3 Selected");
+                //This is for Audio/Mic
+                //Icon update is not done yet
+                toggleMic();
                 return true;
             } else if (item.getItemId() == R.id.page_4) {
-                showToast("Page_4 Selected");
+                //This is for ending call
+                //For now, it will totally destroy whole Video SDK instance
+                onDestroy();
+                //For now, just finish the Activity. Have to find better solution
+                context.finish();
                 return true;
             } else {
                 return false;
             }
         });
+    }
+
+    private void toggleVideo() {
+        if (isLocalVideoEnabled) {
+            disableVideo();
+        } else {
+            enableVideo();
+        }
+    }
+
+    private void toggleAudio() {
+        if (isLocalAudioEnabled) {
+            enableAudio();
+        } else {
+            disableAudio();
+        }
+    }
+
+    private void toggleCamera() {
+        isLocalCameraEnabled = !isLocalCameraEnabled;
+        mRtcEngine.muteLocalVideoStream(isLocalCameraEnabled);
+    }
+
+    private void toggleMic() {
+        isLocalMicEnabled = !isLocalMicEnabled;
+        mRtcEngine.muteLocalAudioStream(isLocalMicEnabled);
     }
 
     private void setupRemoteVideo(int uid) {
