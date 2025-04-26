@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Test App 1</string>
+    <string name="favorites">favorites</string>
+    <string name="music">music</string>
+    <string name="places">places</string>
+    <string name="news">news</string>
+    <string name="video">Video</string>
+    <string name="audio">Audio</string>
+    <string name="call_end">Call End</string>
+    <string name="options">Options</string>
+</resources>
