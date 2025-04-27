@@ -3,11 +3,14 @@ package com.example.fahad.testapp1;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.Manifest;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -16,19 +19,33 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQ_ID = 22;
 
     private VideoCallingSDK sdk;
+    private VideoCallingViewModel videoCallingViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        sdk = new VideoCallingSDK(this);
+        videoCallingViewModel = new ViewModelProvider(this).get(VideoCallingViewModel.class);
+
+        sdk = new VideoCallingSDK(this, videoCallingViewModel);
 
         if (checkPermissions()) {
             sdk.startVideoCalling();
         } else {
             requestPermissions();
         }
+
+        videoCallingViewModel.getIsCallEnded().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean value) {
+                Log.d("MainActivity", "Call Ended: " + value);
+                if (value) {
+//                    onDestroy();
+                    finish();
+                }
+            }
+        });
     }
 
     private void requestPermissions() {
@@ -71,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        videoCallingViewModel.getIsCallEnded().removeObservers(this);
         sdk.onDestroy();
     }
 }

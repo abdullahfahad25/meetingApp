@@ -32,6 +32,7 @@ public class VideoCallingSDK {
     private String token = "007eJxTYPh156ez1W7BsGbXD1GLfpgEPpq0U6M+6PG/xW5Pf0VcCutVYDAyNDU1NEs0NDdMTTVJtTBNSjYwTrI0SzJNNrZMTjRNPiG6Lb0hkJGhUvkbCyMDBIL4AgzOGYl5eak5CiGpxSWOBQWGDAwA7YImiA==";
 
     private final Activity context;
+    private final VideoCallingViewModel videoCallingViewModel;
 
     private BottomNavigationView bottomNavigationView;
 
@@ -70,8 +71,9 @@ public class VideoCallingSDK {
         }
     };
 
-    public VideoCallingSDK(Activity context) {
+    public VideoCallingSDK(Activity context, VideoCallingViewModel videoCallingViewModel) {
         this.context = context;
+        this.videoCallingViewModel = videoCallingViewModel;
     }
 
     public void startVideoCalling() {
@@ -81,6 +83,7 @@ public class VideoCallingSDK {
         joinChannel();
         isLocalMicEnabled = true;
         isLocalCameraEnabled = true;
+        videoCallingViewModel.onCallEnded(false);
     }
 
     private void initializeAgoraVideoSDK() {
@@ -150,10 +153,7 @@ public class VideoCallingSDK {
                 return true;
             } else if (item.getItemId() == R.id.page_4) {
                 //This is for ending call
-                //For now, it will totally destroy whole Video SDK instance
-                onDestroy();
-                //For now, just finish the Activity. Have to find better solution
-                context.finish();
+                videoCallingViewModel.onCallEnded(true);
                 return true;
             } else {
                 return false;
