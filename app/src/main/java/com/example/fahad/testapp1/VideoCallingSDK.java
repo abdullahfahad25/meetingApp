@@ -34,12 +34,8 @@ public class VideoCallingSDK {
     private final Activity context;
     private final VideoCallingViewModel videoCallingViewModel;
 
-    private BottomNavigationView bottomNavigationView;
-
     private boolean isLocalVideoEnabled;
     private boolean isLocalAudioEnabled;
-    private boolean isLocalCameraEnabled;
-    private boolean isLocalMicEnabled;
 
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() {
         // Triggered when the local user successfully joins the specified channel.
@@ -81,9 +77,6 @@ public class VideoCallingSDK {
         enableVideo();
         setupLocalVideo();
         joinChannel();
-        isLocalMicEnabled = true;
-        isLocalCameraEnabled = true;
-        videoCallingViewModel.onCallEnded(false);
     }
 
     private void initializeAgoraVideoSDK() {
@@ -134,31 +127,6 @@ public class VideoCallingSDK {
         SurfaceView surfaceView = new SurfaceView(context.getBaseContext());
         container.addView(surfaceView);
         mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, 0));
-
-        bottomNavigationView = context.findViewById(R.id.bottom_nav);
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.page_1) {
-                //WIP
-                showToast("Options Selected");
-                return true;
-            } else if (item.getItemId() == R.id.page_2) {
-                //This is for Video
-                //Icon update is not done yet
-                toggleCamera();
-                return true;
-            } else if (item.getItemId() == R.id.page_3) {
-                //This is for Audio/Mic
-                //Icon update is not done yet
-                toggleMic();
-                return true;
-            } else if (item.getItemId() == R.id.page_4) {
-                //This is for ending call
-                videoCallingViewModel.onCallEnded(true);
-                return true;
-            } else {
-                return false;
-            }
-        });
     }
 
     private void toggleVideo() {
@@ -177,14 +145,12 @@ public class VideoCallingSDK {
         }
     }
 
-    private void toggleCamera() {
-        isLocalCameraEnabled = !isLocalCameraEnabled;
-        mRtcEngine.muteLocalVideoStream(isLocalCameraEnabled);
+    public void toggleCamera(boolean isCameraOn) {
+        mRtcEngine.muteLocalVideoStream(isCameraOn);
     }
 
-    private void toggleMic() {
-        isLocalMicEnabled = !isLocalMicEnabled;
-        mRtcEngine.muteLocalAudioStream(isLocalMicEnabled);
+    public void toggleMic(boolean isMicOn) {
+        mRtcEngine.muteLocalAudioStream(isMicOn);
     }
 
     private void setupRemoteVideo(int uid) {
