@@ -32,10 +32,8 @@ public class VideoCallingSDK {
     private String token = "007eJxTYPh156ez1W7BsGbXD1GLfpgEPpq0U6M+6PG/xW5Pf0VcCutVYDAyNDU1NEs0NDdMTTVJtTBNSjYwTrI0SzJNNrZMTjRNPiG6Lb0hkJGhUvkbCyMDBIL4AgzOGYl5eak5CiGpxSWOBQWGDAwA7YImiA==";
 
     private final Activity context;
-    private final VideoCallingViewModel videoCallingViewModel;
 
-    private boolean isLocalVideoEnabled;
-    private boolean isLocalAudioEnabled;
+    private Callback callback;
 
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() {
         // Triggered when the local user successfully joins the specified channel.
@@ -52,8 +50,10 @@ public class VideoCallingSDK {
             super.onUserJoined(uid, elapsed);
             context.runOnUiThread(() -> {
                 // Initialize and display remote video view for the new user.
-                setupRemoteVideo(uid);
+//                setupRemoteVideo(uid);
                 showToast("Remote User joined: " + uid);
+
+                callback.onUserJoined(uid);
             });
         }
 
@@ -67,19 +67,18 @@ public class VideoCallingSDK {
         }
     };
 
-    public VideoCallingSDK(Activity context, VideoCallingViewModel videoCallingViewModel) {
+    public VideoCallingSDK(Activity context) {
         this.context = context;
-        this.videoCallingViewModel = videoCallingViewModel;
     }
 
-    public void startVideoCalling() {
-        initializeAgoraVideoSDK();
-        enableVideo();
-        setupLocalVideo();
-        joinChannel();
-    }
+//    public void startVideoCalling() {
+//        initializeAgoraVideoSDK();
+//        enableVideo();
+//        setupLocalVideo();
+//        joinChannel();
+//    }
 
-    private void initializeAgoraVideoSDK() {
+    public void initializeAgoraVideoSDK() {
         try {
             RtcEngineConfig config = new RtcEngineConfig();
             config.mContext = context.getBaseContext();
@@ -91,7 +90,11 @@ public class VideoCallingSDK {
         }
     }
 
-    private void joinChannel() {
+    public void setLocalView(VideoCanvas localView) {
+        mRtcEngine.setupLocalVideo(localView);
+    }
+
+    public void joinChannel() {
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.clientRoleType = Constants.CLIENT_ROLE_BROADCASTER;
         options.channelProfile = Constants.CHANNEL_PROFILE_COMMUNICATION;
@@ -100,50 +103,17 @@ public class VideoCallingSDK {
         mRtcEngine.joinChannel(token, channelName, 0, options);
     }
 
-    private void enableVideo() {
+    public void enableVideo() {
         mRtcEngine.enableVideo();
         mRtcEngine.startPreview();
-        isLocalVideoEnabled = true;
     }
 
-    private void disableVideo() {
-        mRtcEngine.disableVideo();
-        mRtcEngine.stopPreview();
-        isLocalVideoEnabled = false;
-    }
-
-    private void enableAudio() {
-        mRtcEngine.enableAudio();
-        isLocalAudioEnabled = true;
-    }
-
-    private void disableAudio() {
-        mRtcEngine.disableAudio();
-        isLocalAudioEnabled = false;
-    }
-
-    private void setupLocalVideo() {
-        FrameLayout container = context.findViewById(R.id.local_video_view_container);
-        SurfaceView surfaceView = new SurfaceView(context.getBaseContext());
-        container.addView(surfaceView);
-        mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, 0));
-    }
-
-    private void toggleVideo() {
-        if (isLocalVideoEnabled) {
-            disableVideo();
-        } else {
-            enableVideo();
-        }
-    }
-
-    private void toggleAudio() {
-        if (isLocalAudioEnabled) {
-            enableAudio();
-        } else {
-            disableAudio();
-        }
-    }
+//    private void setupLocalVideo() {
+//        FrameLayout container = context.findViewById(R.id.local_video_view_container);
+//        SurfaceView surfaceView = new SurfaceView(context.getBaseContext());
+//        container.addView(surfaceView);
+//        mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, 0));
+//    }
 
     public void toggleCamera(boolean isCameraOn) {
         mRtcEngine.muteLocalVideoStream(isCameraOn);
@@ -153,12 +123,20 @@ public class VideoCallingSDK {
         mRtcEngine.muteLocalAudioStream(isMicOn);
     }
 
-    private void setupRemoteVideo(int uid) {
-        FrameLayout container = context.findViewById(R.id.remote_video_view_container);
-        SurfaceView surfaceView = new SurfaceView(context.getBaseContext());
-        surfaceView.setZOrderMediaOverlay(true);
-        container.addView(surfaceView);
-        mRtcEngine.setupRemoteVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, uid));
+//    private void setupRemoteVideo(int uid) {
+//        FrameLayout container = context.findViewById(R.id.remote_video_view_container);
+//        SurfaceView surfaceView = new SurfaceView(context.getBaseContext());
+//        surfaceView.setZOrderMediaOverlay(true);
+//        container.addView(surfaceView);
+//        mRtcEngine.setupRemoteVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, uid));
+//    }
+
+    public void setRemoteView(VideoCanvas remoteView) {
+        mRtcEngine.setupRemoteVideo(remoteView);
+    }
+
+    public void setCallback(Callback callback) {
+        this.callback = callback;
     }
 
     private void showToast(String message) {
@@ -175,5 +153,9 @@ public class VideoCallingSDK {
 
     public void onDestroy() {
         cleanupAgoraEngine();
+    }
+
+    interface Callback {
+        void onUserJoined(int uid);
     }
 }

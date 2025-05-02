@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQ_ID = 22;
 
     private VideoCallingSDK sdk;
+    private VideoCallingView callingView;
     private VideoCallingViewModel videoCallingViewModel;
 
     private BottomNavigationView bottomNavigationView;
@@ -29,15 +30,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        videoCallingViewModel = new ViewModelProvider(this).get(VideoCallingViewModel.class);
+        callingView = new VideoCallingView(this);
+        sdk = new VideoCallingSDK(this);
 
-        sdk = new VideoCallingSDK(this, videoCallingViewModel);
+        videoCallingViewModel = new ViewModelProvider(this).get(VideoCallingViewModel.class);
+        videoCallingViewModel.setManager(sdk);
 
         setupUI();
         setupObservers();
 
         if (checkPermissions()) {
-            sdk.startVideoCalling();
+            videoCallingViewModel.startVideoCall(callingView);
         } else {
             requestPermissions();
         }
@@ -62,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (item.getItemId() == R.id.page_4) {
                 //This is for ending call
-                videoCallingViewModel.onCallEnded(sdk);
+                videoCallingViewModel.endCall(sdk);
                 return true;
             } else {
                 return false;
@@ -95,6 +98,14 @@ public class MainActivity extends AppCompatActivity {
             public void onChanged(Boolean aBoolean) {
                 Log.d("MainActivity", "isMicMute: " + aBoolean);
                 //Update icon
+            }
+        });
+
+        videoCallingViewModel.getRemoteViewLiveData().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                Log.d("MainActivity", "remote user id: " + integer.toString());
+                videoCallingViewModel.setRemoteView(callingView.getRemoteView(integer));
             }
         });
     }
@@ -136,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQ_ID && checkPermissions()) {
-            sdk.startVideoCalling();
+            videoCallingViewModel.startVideoCall(callingView);
         }
     }
 
@@ -146,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
         videoCallingViewModel.getIsCallEnded().removeObservers(this);
         videoCallingViewModel.getIsMicMute().removeObservers(this);
         videoCallingViewModel.getIsCameraOn().removeObservers(this);
+        videoCallingViewModel.getRemoteViewLiveData().removeObservers(this);
         sdk.onDestroy();
     }
 }
