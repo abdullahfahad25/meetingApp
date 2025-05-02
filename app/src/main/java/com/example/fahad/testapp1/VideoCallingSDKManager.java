@@ -5,22 +5,19 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import io.agora.rtc2.video.VideoCanvas;
 
+@Singleton
 public class VideoCallingSDKManager {
     private final VideoCallingSDK sdk;
     private final MutableLiveData<Integer> remoteViewLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> isCallEnded = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> isMicMute = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> isCameraOn = new MutableLiveData<>();
 
+    @Inject
     public VideoCallingSDKManager(VideoCallingSDK sdk) {
         this.sdk = sdk;
-
-        isMicMute.setValue(true);
-        isCallEnded.setValue(false);
-        isCameraOn.setValue(false);
-
         sdk.setCallback(new VideoCallingSDK.Callback() {
             @Override
             public void onUserJoined(int uid) {
@@ -48,30 +45,19 @@ public class VideoCallingSDKManager {
         return remoteViewLiveData;
     }
 
-    public LiveData<Boolean> getIsCallEnded() {
-        return isCallEnded;
-    }
-
-    public LiveData<Boolean> getIsMicMute() {
-        return isMicMute;
-    }
-
-    public LiveData<Boolean> getIsCameraOn() {
-        return isCameraOn;
-    }
-
     public void endCall() {
         sdk.onDestroy();
-        isCallEnded.setValue(true);
     }
 
-    public void toggleCamera() {
-        isCameraOn.setValue(Boolean.FALSE.equals(isCameraOn.getValue()));
-        sdk.toggleCamera(Boolean.TRUE.equals(isCameraOn.getValue()));
+    public void toggleCamera(boolean isCameraOn) {
+        sdk.toggleCamera(isCameraOn);
     }
 
-    public void toggleMic() {
-        isMicMute.setValue(Boolean.FALSE.equals(isMicMute.getValue()));
-        sdk.toggleMic(Boolean.TRUE.equals(isMicMute.getValue()));
+    public void toggleMic(boolean isMicMute) {
+        sdk.toggleMic(isMicMute);
+    }
+
+    public void onDestroy() {
+        sdk.onDestroy();
     }
 }

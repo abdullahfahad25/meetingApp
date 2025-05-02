@@ -1,6 +1,8 @@
 package com.example.fahad.testapp1;
 
 import android.app.Activity;
+import android.content.Context;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.widget.FrameLayout;
@@ -11,6 +13,10 @@ import androidx.annotation.NonNull;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
 import io.agora.rtc2.IRtcEngineEventHandler;
@@ -18,20 +24,22 @@ import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
 import io.agora.rtc2.video.VideoCanvas;
 
+@Singleton
 public class VideoCallingSDK {
 
     // Fill in the app ID from Agora Console
-    private String myAppId = "215516a171ee4e85bc03b96b5c39ca5c";
-    private RtcEngine mRtcEngine;
+    private final String myAppId = "215516a171ee4e85bc03b96b5c39ca5c";
 
     // Fill in the channel name
-    private String channelName = "Channel TestApp1";
+    private final String channelName = "Channel TestApp1";
 
     // Fill in the temporary token generated from Agora Console
     //This token gets expired in 1 day. So, always need to generate token
-    private String token = "007eJxTYPh156ez1W7BsGbXD1GLfpgEPpq0U6M+6PG/xW5Pf0VcCutVYDAyNDU1NEs0NDdMTTVJtTBNSjYwTrI0SzJNNrZMTjRNPiG6Lb0hkJGhUvkbCyMDBIL4AgzOGYl5eak5CiGpxSWOBQWGDAwA7YImiA==";
+    private final String token = "007eJxTYPh156ez1W7BsGbXD1GLfpgEPpq0U6M+6PG/xW5Pf0VcCutVYDAyNDU1NEs0NDdMTTVJtTBNSjYwTrI0SzJNNrZMTjRNPiG6Lb0hkJGhUvkbCyMDBIL4AgzOGYl5eak5CiGpxSWOBQWGDAwA7YImiA==";
 
-    private final Activity context;
+    private RtcEngine mRtcEngine;
+
+    private final Context context;
 
     private Callback callback;
 
@@ -40,7 +48,7 @@ public class VideoCallingSDK {
         @Override
         public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
             super.onJoinChannelSuccess(channel, uid, elapsed);
-            showToast("Host User " + uid + " has joined channel " + channel);
+            Log.d("VideoCallingSDK", "onJoinChannelSuccess, uid: " + uid + ", channel: " + channel);
         }
 
 
@@ -48,26 +56,20 @@ public class VideoCallingSDK {
         @Override
         public void onUserJoined(int uid, int elapsed) {
             super.onUserJoined(uid, elapsed);
-            context.runOnUiThread(() -> {
-                // Initialize and display remote video view for the new user.
-//                setupRemoteVideo(uid);
-                showToast("Remote User joined: " + uid);
-
-                callback.onUserJoined(uid);
-            });
+            Log.d("VideoCallingSDK", "onUserJoined: " + uid);
+            callback.onUserJoined(uid);
         }
 
         // Triggered when a remote user/host leaves the channel.
         @Override
         public void onUserOffline(int uid, int reason) {
             super.onUserOffline(uid, reason);
-            context.runOnUiThread(() -> {
-                showToast("User offline: " + uid);
-            });
+            Log.d("VideoCallingSDK", "onUserOffline: " + uid);
         }
     };
 
-    public VideoCallingSDK(Activity context) {
+    @Inject
+    public VideoCallingSDK(@ApplicationContext Context context) {
         this.context = context;
     }
 
@@ -81,7 +83,7 @@ public class VideoCallingSDK {
     public void initializeAgoraVideoSDK() {
         try {
             RtcEngineConfig config = new RtcEngineConfig();
-            config.mContext = context.getBaseContext();
+            config.mContext = context;
             config.mAppId = myAppId;
             config.mEventHandler = mRtcEventHandler;
             mRtcEngine = RtcEngine.create(config);
@@ -137,10 +139,6 @@ public class VideoCallingSDK {
 
     public void setCallback(Callback callback) {
         this.callback = callback;
-    }
-
-    private void showToast(String message) {
-        context.runOnUiThread(() -> Toast.makeText(context, message, Toast.LENGTH_SHORT).show());
     }
 
     private void cleanupAgoraEngine() {

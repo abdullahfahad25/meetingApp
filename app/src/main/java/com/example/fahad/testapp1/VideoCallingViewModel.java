@@ -4,13 +4,28 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.agora.rtc2.video.VideoCanvas;
 
+@HiltViewModel
 public class VideoCallingViewModel extends ViewModel {
+
+    private final MutableLiveData<Boolean> isCallEnded = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isMicMute = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isCameraOn = new MutableLiveData<>();
 
     private VideoCallingSDKManager manager;
 
-    public VideoCallingViewModel() {}
+    @Inject
+    public VideoCallingViewModel(VideoCallingSDKManager sdkManager) {
+        this.manager = sdkManager;
+
+        isMicMute.setValue(true);
+        isCallEnded.setValue(false);
+        isCameraOn.setValue(false);
+    }
 
     public void setManager(VideoCallingSDK sdk) {
         manager = new VideoCallingSDKManager(sdk);
@@ -25,30 +40,37 @@ public class VideoCallingViewModel extends ViewModel {
     }
 
     public LiveData<Boolean> getIsCallEnded() {
-        return manager.getIsCallEnded();
+        return isCallEnded;
     }
 
     public LiveData<Boolean> getIsMicMute() {
-        return manager.getIsMicMute();
+        return isMicMute;
     }
 
     public LiveData<Boolean> getIsCameraOn() {
-        return manager.getIsCameraOn();
+        return isCameraOn;
     }
 
     public LiveData<Integer> getRemoteViewLiveData() {
         return manager.getRemoteViewLiveData();
     }
 
-    public void endCall(VideoCallingSDK sdk) {
+    public void endCall() {
         manager.endCall();
+        isCallEnded.setValue(true);
     }
 
-    public void toggleCamera(VideoCallingSDK sdk) {
-        manager.toggleCamera();
+    public void toggleCamera() {
+        isCameraOn.setValue(Boolean.FALSE.equals(isCameraOn.getValue()));
+        manager.toggleCamera(Boolean.TRUE.equals(isCameraOn.getValue()));
     }
 
-    public void toggleMic(VideoCallingSDK sdk) {
-        manager.toggleMic();
+    public void toggleMic() {
+        isMicMute.setValue(Boolean.FALSE.equals(isMicMute.getValue()));
+        manager.toggleMic(Boolean.TRUE.equals(isMicMute.getValue()));
+    }
+
+    public void destroy() {
+        manager.onDestroy();
     }
 }

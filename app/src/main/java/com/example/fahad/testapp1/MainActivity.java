@@ -15,12 +15,17 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQ_ID = 22;
 
-    private VideoCallingSDK sdk;
     private VideoCallingView callingView;
+
     private VideoCallingViewModel videoCallingViewModel;
 
     private BottomNavigationView bottomNavigationView;
@@ -31,10 +36,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         callingView = new VideoCallingView(this);
-        sdk = new VideoCallingSDK(this);
 
         videoCallingViewModel = new ViewModelProvider(this).get(VideoCallingViewModel.class);
-        videoCallingViewModel.setManager(sdk);
 
         setupUI();
         setupObservers();
@@ -56,16 +59,16 @@ public class MainActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.page_2) {
                 //This is for Video
                 //Icon update is not done yet
-                videoCallingViewModel.toggleCamera(sdk);
+                videoCallingViewModel.toggleCamera();
                 return true;
             } else if (item.getItemId() == R.id.page_3) {
                 //This is for Audio/Mic
                 //Icon update is not done yet
-                videoCallingViewModel.toggleMic(sdk);
+                videoCallingViewModel.toggleMic();
                 return true;
             } else if (item.getItemId() == R.id.page_4) {
                 //This is for ending call
-                videoCallingViewModel.endCall(sdk);
+                videoCallingViewModel.endCall();
                 return true;
             } else {
                 return false;
@@ -158,6 +161,6 @@ public class MainActivity extends AppCompatActivity {
         videoCallingViewModel.getIsMicMute().removeObservers(this);
         videoCallingViewModel.getIsCameraOn().removeObservers(this);
         videoCallingViewModel.getRemoteViewLiveData().removeObservers(this);
-        sdk.onDestroy();
+        videoCallingViewModel.destroy();
     }
 }
