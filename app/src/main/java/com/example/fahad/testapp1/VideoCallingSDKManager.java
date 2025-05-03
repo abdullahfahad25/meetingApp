@@ -13,7 +13,8 @@ import io.agora.rtc2.video.VideoCanvas;
 @Singleton
 public class VideoCallingSDKManager {
     private final VideoCallingSDK sdk;
-    private final MutableLiveData<Integer> remoteViewLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Integer> remoteUserJoinedLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Integer> remoteUserLeftLiveData = new MutableLiveData<>();
 
     @Inject
     public VideoCallingSDKManager(VideoCallingSDK sdk) {
@@ -22,7 +23,13 @@ public class VideoCallingSDKManager {
             @Override
             public void onUserJoined(int uid) {
                 Log.d("Manager", "User joined: " + uid);
-                remoteViewLiveData.setValue(uid);
+                remoteUserJoinedLiveData.setValue(uid);
+            }
+
+            @Override
+            public void onUserLeft(int uid) {
+                Log.d("Manager", "User left: " + uid);
+                remoteUserLeftLiveData.setValue(uid);
             }
         });
     }
@@ -41,8 +48,12 @@ public class VideoCallingSDKManager {
         sdk.setRemoteView(remoteView);
     }
 
-    public LiveData<Integer> getRemoteViewLiveData() {
-        return remoteViewLiveData;
+    public LiveData<Integer> getRemoteUserJoinedLiveData() {
+        return remoteUserJoinedLiveData;
+    }
+
+    public MutableLiveData<Integer> getRemoteUserLeftLiveData() {
+        return remoteUserLeftLiveData;
     }
 
     public void endCall() {

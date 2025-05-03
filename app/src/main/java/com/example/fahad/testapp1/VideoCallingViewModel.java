@@ -51,8 +51,12 @@ public class VideoCallingViewModel extends ViewModel {
         return isCameraOn;
     }
 
-    public LiveData<Integer> getRemoteViewLiveData() {
-        return manager.getRemoteViewLiveData();
+    public LiveData<Integer> getRemoteUserJoinedLiveData() {
+        return manager.getRemoteUserJoinedLiveData();
+    }
+
+    public LiveData<Integer> getRemoteUserLeftLiveData() {
+        return manager.getRemoteUserLeftLiveData();
     }
 
     public void endCall() {

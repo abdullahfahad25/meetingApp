@@ -12,12 +12,18 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import io.agora.rtc2.video.VideoCanvas;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
@@ -29,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private VideoCallingViewModel videoCallingViewModel;
 
     private BottomNavigationView bottomNavigationView;
+    private RecyclerView remoteRecyler;
+    private RemoteRecyclerAdapter adapter;
+    private List<Integer> remoteUids = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +59,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupUI() {
+        remoteRecyler = findViewById(R.id.remote_recycler);
+        remoteRecyler.setLayoutManager(new GridLayoutManager(this, 2));
+        adapter = new RemoteRecyclerAdapter(remoteUids, this);
+        adapter.setCallback(new RemoteRecyclerAdapter.Callback() {
+            @Override
+            public void onBindViewReady(VideoCanvas view) {
+                Log.d("MainActivity", "Remote view is ready");
+                videoCallingViewModel.setRemoteView(view);
+            }
+        });
+        remoteRecyler.setAdapter(adapter);
+
         bottomNavigationView = findViewById(R.id.bottom_nav);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.page_1) {
@@ -104,11 +125,27 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        videoCallingViewModel.getRemoteViewLiveData().observe(this, new Observer<Integer>() {
+        videoCallingViewModel.getRemoteUserJoinedLiveData().observe(this, new Observer<Integer>() {
             @Override
-            public void onChanged(Integer integer) {
-                Log.d("MainActivity", "remote user id: " + integer.toString());
-                videoCallingViewModel.setRemoteView(callingView.getRemoteView(integer));
+            public void onChanged(Integer uid) {
+                Log.d("MainActivity", "remote joined user id: " + uid.toString());
+//                videoCallingViewModel.setRemoteView(callingView.getRemoteView(integer));
+                if (!remoteUids.contains(uid)) {
+                    remoteUids.add(uid);
+                    adapter.notifyItemInserted(remoteUids.indexOf(uid));
+                }
+            }
+        });
+
+        videoCallingViewModel.getRemoteUserLeftLiveData().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer uid) {
+                Log.d("MainActivity", "remote left user id: " + uid.toString());
+                if (remoteUids.contains(uid)) {
+                    int pos = remoteUids.indexOf(uid);
+                    remoteUids.remove(uid);
+                    adapter.notifyItemRemoved(pos);
+                }
             }
         });
     }
@@ -157,10 +194,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        remoteRecyler.setAdapter(null);
+
         videoCallingViewModel.getIsCallEnded().removeObservers(this);
         videoCallingViewModel.getIsMicMute().removeObservers(this);
         videoCallingViewModel.getIsCameraOn().removeObservers(this);
-        videoCallingViewModel.getRemoteViewLiveData().removeObservers(this);
+        videoCallingViewModel.getRemoteUserJoinedLiveData().removeObservers(this);
+        videoCallingViewModel.getRemoteUserLeftLiveData().removeObservers(this);
         videoCallingViewModel.destroy();
     }
 }

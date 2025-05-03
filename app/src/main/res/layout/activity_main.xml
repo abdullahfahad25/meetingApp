@@ -8,9 +8,13 @@
 
     <FrameLayout
         android:id="@+id/local_video_view_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white" />
+        android:layout_width="0dp"
+        android:layout_height="220dp"
+        android:background="@android:color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp"/>
 
     <FrameLayout
         android:id="@+id/remote_video_view_container"
@@ -18,9 +22,24 @@
         android:layout_height="160dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
+        android:visibility="gone"
         android:background="@android:color/darker_gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Remote participant grid -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/remote_recycler"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:padding="4dp"
+        android:overScrollMode="never"
+        android:background="#181818"
+        app:layout_constraintTop_toBottomOf="@id/local_video_view_container"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"

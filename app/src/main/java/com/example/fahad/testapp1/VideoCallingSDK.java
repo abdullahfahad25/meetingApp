@@ -155,5 +155,6 @@ public class VideoCallingSDK {
 
     interface Callback {
         void onUserJoined(int uid);
+        void onUserLeft(int uid);
     }
 }
