@@ -30,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQ_ID = 22;
 
-    private VideoCallingView callingView;
+//    private VideoCallingView callingView;
+    private VideoCallingViewkt callingViewkt;
 
     private VideoCallingViewModel videoCallingViewModel;
 
@@ -44,15 +45,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        callingView = new VideoCallingView(this);
+//        callingView = new VideoCallingView(this);
+        callingViewkt = new VideoCallingViewkt(this);
 
         videoCallingViewModel = new ViewModelProvider(this).get(VideoCallingViewModel.class);
+//        videoCallingViewModel.setManager(new VideoCallingSDKkt(getApplicationContext()));
 
         setupUI();
         setupObservers();
 
         if (checkPermissions()) {
-            videoCallingViewModel.startVideoCall(callingView);
+            videoCallingViewModel.startVideoCall(callingViewkt);
         } else {
             requestPermissions();
         }
@@ -187,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQ_ID && checkPermissions()) {
-            videoCallingViewModel.startVideoCall(callingView);
+            videoCallingViewModel.startVideoCall(callingViewkt);
         }
     }
 

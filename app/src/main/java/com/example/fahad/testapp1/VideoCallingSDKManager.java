@@ -12,14 +12,33 @@ import io.agora.rtc2.video.VideoCanvas;
 
 @Singleton
 public class VideoCallingSDKManager {
-    private final VideoCallingSDK sdk;
+//    private final VideoCallingSDK sdk;
+    private final VideoCallingSDKkt sdKkt;
     private final MutableLiveData<Integer> remoteUserJoinedLiveData = new MutableLiveData<>();
     private final MutableLiveData<Integer> remoteUserLeftLiveData = new MutableLiveData<>();
 
+//    @Inject
+//    public VideoCallingSDKManager(VideoCallingSDK sdk) {
+//        this.sdk = sdk;
+//        sdk.setCallback(new VideoCallingSDK.Callback() {
+//            @Override
+//            public void onUserJoined(int uid) {
+//                Log.d("Manager", "User joined: " + uid);
+//                remoteUserJoinedLiveData.setValue(uid);
+//            }
+//
+//            @Override
+//            public void onUserLeft(int uid) {
+//                Log.d("Manager", "User left: " + uid);
+//                remoteUserLeftLiveData.setValue(uid);
+//            }
+//        });
+//    }
+
     @Inject
-    public VideoCallingSDKManager(VideoCallingSDK sdk) {
-        this.sdk = sdk;
-        sdk.setCallback(new VideoCallingSDK.Callback() {
+    public VideoCallingSDKManager(VideoCallingSDKkt sdKkt) {
+        this.sdKkt = sdKkt;
+        sdKkt.setCallback(new VideoCallingSDKkt.Callback() {
             @Override
             public void onUserJoined(int uid) {
                 Log.d("Manager", "User joined: " + uid);
@@ -35,17 +54,27 @@ public class VideoCallingSDKManager {
     }
 
     public void startVideoCalling(VideoCallingView videoCallingView) {
-        sdk.initializeAgoraVideoSDK();
-        sdk.enableVideo();
+        sdKkt.initializeAgoraVideoSDK();
+        sdKkt.enableVideo();
 
         videoCallingView.setupLocalVideo();
-        sdk.setLocalView(videoCallingView.getLocalview());
+        sdKkt.setLocalView(videoCallingView.getLocalview());
 
-        sdk.joinChannel();
+        sdKkt.joinChannel();
+    }
+
+    public void startVideoCalling(VideoCallingViewkt videoCallingViewkt) {
+        sdKkt.initializeAgoraVideoSDK();
+        sdKkt.enableVideo();
+
+        videoCallingViewkt.setupLocalVideo();
+        sdKkt.setLocalView(videoCallingViewkt.getLocalView());
+
+        sdKkt.joinChannel();
     }
 
     public void setRemoteView(VideoCanvas remoteView) {
-        sdk.setRemoteView(remoteView);
+        sdKkt.setRemoteView(remoteView);
     }
 
     public LiveData<Integer> getRemoteUserJoinedLiveData() {
@@ -57,18 +86,18 @@ public class VideoCallingSDKManager {
     }
 
     public void endCall() {
-        sdk.onDestroy();
+        sdKkt.onDestroy();
     }
 
     public void toggleCamera(boolean isCameraOn) {
-        sdk.toggleCamera(isCameraOn);
+        sdKkt.toggleCamera(isCameraOn);
     }
 
     public void toggleMic(boolean isMicMute) {
-        sdk.toggleMic(isMicMute);
+        sdKkt.toggleMic(isMicMute);
     }
 
     public void onDestroy() {
-        sdk.onDestroy();
+        sdKkt.onDestroy();
     }
 }

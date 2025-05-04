@@ -27,12 +27,23 @@ public class VideoCallingViewModel extends ViewModel {
         isCameraOn.setValue(false);
     }
 
-    public void setManager(VideoCallingSDK sdk) {
-        manager = new VideoCallingSDKManager(sdk);
+//    public VideoCallingViewModel() {
+//        isMicMute.setValue(true);
+//        isCallEnded.setValue(false);
+//        isCameraOn.setValue(false);
+//    }
+
+    public void setManager(VideoCallingSDKkt sdKkt) {
+//        manager = new VideoCallingSDKManager(sdk);
+        manager = new VideoCallingSDKManager(sdKkt);
     }
 
     public void startVideoCall(VideoCallingView videoCallingView) {
         manager.startVideoCalling(videoCallingView);
+    }
+
+    public void startVideoCall(VideoCallingViewkt videoCallingViewkt) {
+        manager.startVideoCalling(videoCallingViewkt);
     }
 
     public void setRemoteView(VideoCanvas remoteView) {

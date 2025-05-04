@@ -8,5 +8,6 @@ import dagger.hilt.components.SingletonComponent;
 @InstallIn(SingletonComponent.class)
 public interface VideoCallingEntryPoints {
     VideoCallingSDK getSDK();
+    VideoCallingSDKkt getSDKkt();
     VideoCallingSDKManager getSDKManager();
 }
