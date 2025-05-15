@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 //    private VideoCallingView callingView;
     private VideoCallingViewkt callingViewkt;
 
-    private VideoCallingViewModel videoCallingViewModel;
+    private VideoCallingViewModelkt videoCallingViewModelkt;
 
     private BottomNavigationView bottomNavigationView;
     private RecyclerView remoteRecyler;
@@ -48,14 +48,13 @@ public class MainActivity extends AppCompatActivity {
 //        callingView = new VideoCallingView(this);
         callingViewkt = new VideoCallingViewkt(this);
 
-        videoCallingViewModel = new ViewModelProvider(this).get(VideoCallingViewModel.class);
-//        videoCallingViewModel.setManager(new VideoCallingSDKkt(getApplicationContext()));
+        videoCallingViewModelkt = new ViewModelProvider(this).get(VideoCallingViewModelkt.class);
 
         setupUI();
         setupObservers();
 
         if (checkPermissions()) {
-            videoCallingViewModel.startVideoCall(callingViewkt);
+            videoCallingViewModelkt.startVideoCall(callingViewkt);
         } else {
             requestPermissions();
         }
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onBindViewReady(VideoCanvas view) {
                 Log.d("MainActivity", "Remote view is ready");
-                videoCallingViewModel.setRemoteView(view);
+                videoCallingViewModelkt.setRemoteView(view);
             }
         });
         remoteRecyler.setAdapter(adapter);
@@ -83,16 +82,16 @@ public class MainActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.page_2) {
                 //This is for Video
                 //Icon update is not done yet
-                videoCallingViewModel.toggleCamera();
+                videoCallingViewModelkt.toggleCamera();
                 return true;
             } else if (item.getItemId() == R.id.page_3) {
                 //This is for Audio/Mic
                 //Icon update is not done yet
-                videoCallingViewModel.toggleMic();
+                videoCallingViewModelkt.toggleMic();
                 return true;
             } else if (item.getItemId() == R.id.page_4) {
                 //This is for ending call
-                videoCallingViewModel.endCall();
+                videoCallingViewModelkt.endCall();
                 return true;
             } else {
                 return false;
@@ -101,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupObservers() {
-        videoCallingViewModel.getIsCallEnded().observe(this, new Observer<Boolean>() {
+        videoCallingViewModelkt.isCallEnded().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean value) {
                 Log.d("MainActivity", "Call Ended: " + value);
@@ -112,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        videoCallingViewModel.getIsCameraOn().observe(this, new Observer<Boolean>() {
+        videoCallingViewModelkt.isCameraOn().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 Log.d("MainActivity", "isCameraOn: " + aBoolean);
@@ -120,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        videoCallingViewModel.getIsMicMute().observe(this, new Observer<Boolean>() {
+        videoCallingViewModelkt.isMicMute().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 Log.d("MainActivity", "isMicMute: " + aBoolean);
@@ -128,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        videoCallingViewModel.getRemoteUserJoinedLiveData().observe(this, new Observer<Integer>() {
+        videoCallingViewModelkt.getRemoteUserJoined().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer uid) {
                 Log.d("MainActivity", "remote joined user id: " + uid.toString());
@@ -140,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        videoCallingViewModel.getRemoteUserLeftLiveData().observe(this, new Observer<Integer>() {
+        videoCallingViewModelkt.getRemoteUserLeft().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer uid) {
                 Log.d("MainActivity", "remote left user id: " + uid.toString());
@@ -190,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQ_ID && checkPermissions()) {
-            videoCallingViewModel.startVideoCall(callingViewkt);
+            videoCallingViewModelkt.startVideoCall(callingViewkt);
         }
     }
 
@@ -200,11 +199,11 @@ public class MainActivity extends AppCompatActivity {
 
         remoteRecyler.setAdapter(null);
 
-        videoCallingViewModel.getIsCallEnded().removeObservers(this);
-        videoCallingViewModel.getIsMicMute().removeObservers(this);
-        videoCallingViewModel.getIsCameraOn().removeObservers(this);
-        videoCallingViewModel.getRemoteUserJoinedLiveData().removeObservers(this);
-        videoCallingViewModel.getRemoteUserLeftLiveData().removeObservers(this);
-        videoCallingViewModel.destroy();
+        videoCallingViewModelkt.isCallEnded().removeObservers(this);
+        videoCallingViewModelkt.isMicMute().removeObservers(this);
+        videoCallingViewModelkt.isCameraOn().removeObservers(this);
+        videoCallingViewModelkt.getRemoteUserJoined().removeObservers(this);
+        videoCallingViewModelkt.getRemoteUserLeft().removeObservers(this);
+        videoCallingViewModelkt.destroy();
     }
 }

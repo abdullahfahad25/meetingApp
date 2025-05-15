@@ -48,6 +48,8 @@ dependencies {
     implementation libs.core.ktx
     annotationProcessor libs.hilt.compiler
 
+    implementation libs.lifecycle.livedata.ktx
+
 //    ksp libs.hilt.compiler
 
     testImplementation libs.junit
