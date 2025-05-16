@@ -7,7 +7,6 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.agora.rtc2.video.VideoCanvas
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,6 +28,8 @@ class VideoCallingViewModelkt @Inject constructor(
     val remoteUserJoined: LiveData<Int> = _remoteUserJoined
 
     val remoteUserLeft: LiveData<Int> = manager.remoteUserLeftFlow.asLiveData()
+//    private val _remoteUserLeft = MutableLiveData<Int>()
+//    val remoteUserLeft: LiveData<Int> = _remoteUserLeft
 
     init {
         _isMicMute.value = true
