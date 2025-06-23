@@ -6,8 +6,11 @@ Features include:
   3. Microphone on/off
   4. Active Participant list update
 
-Tech stacks used here are
+Tech stacks used
   1. Agora SDK
   2. Java
   3. Kotlin
   4. Hilt
+
+Architecture used
+  MVVM
