@@ -12,5 +12,5 @@ Tech stacks used
   3. Kotlin
   4. Hilt
 
-Architecture used
-  MVVM
+Architecture used 
+    MVVM
